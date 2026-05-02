@@ -325,14 +325,35 @@ def update_donut(region, country, category, segments):
     fig = go.Figure(go.Pie(
         labels=cs["Product_Category"],
         values=cs["Total_Sales"],
-        hole=0.55,
+        hole=0.60,
         marker_colors=[CAT_COLOR_MAP[c] for c in cs["Product_Category"]],
-        textinfo="percent+label",
-        hovertemplate="%{label}<br>Ventas: %{value:$,.0f}<br>%{percent}<extra></extra>",
+        marker=dict(line=dict(color="white", width=3)),
+        # Solo mostrar porcentaje dentro del grafico, etiquetas en la leyenda
+        textinfo="percent",
+        textposition="inside",
+        textfont=dict(size=14, color="white"),
+        insidetextorientation="radial",
+        hovertemplate="<b>%{label}</b><br>Ventas: %{value:$,.0f}<br>Participacion: %{percent}<extra></extra>",
+        pull=[0.03, 0.03, 0.03, 0.03],  # separa ligeramente cada segmento
     ))
+    # Texto central con total
+    total = cs["Total_Sales"].sum()
+    total_str = f"${total/1_000_000:.1f}M" if total >= 1_000_000 else f"${total/1_000:.0f}K"
     fig.update_layout(**base_layout(
-        margin=dict(l=20, r=20, t=20, b=20),
-        legend=dict(orientation="h", yanchor="bottom", y=-0.12, xanchor="center", x=0.5),
+        margin=dict(l=10, r=10, t=40, b=10),
+        # Leyenda vertical a la derecha con nombres completos y valores
+        legend=dict(
+            orientation="v",
+            yanchor="middle", y=0.5,
+            xanchor="left", x=1.02,
+            font=dict(size=12),
+            itemsizing="constant",
+        ),
+        annotations=[dict(
+            text=f"<b>{total_str}</b><br><span style='font-size:11px'>Total Ventas</span>",
+            x=0.5, y=0.5, font=dict(size=15, color=COLORS["primary"]),
+            showarrow=False, align="center",
+        )],
     ))
     return fig
 
